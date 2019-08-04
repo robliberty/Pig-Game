@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="msapplication-tap-highlight" content="no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pig Game</title>
+<link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="images/favicons/favicon-16x16.png">
+<link rel="manifest" href="images/favicons/site.webmanifest">
+<link rel="mask-icon" href="images/favicons/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="shortcut icon" href="images/favicons/favicon.ico">
+<meta name="msapplication-TileColor" content="#80deea">
+<meta name="msapplication-config" content="images/favicons/browserconfig.xml">
+<meta name="theme-color" content="#ffffff">
+
+<link href="https://fonts.googleapis.com/css?family=Rubik:400,500" rel="stylesheet">
+<script src="https://kit.fontawesome.com/1cadbbd35f.js" integrity="sha384-Ory0PsVjflAfDtFuk5ycIx+bEuvRnw9UZPS0T0PYF1fmB1BcZTtIWS/KeG8yJSwh" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+
+<style>
+*{margin:0; border:0; outline:0; padding:0; box-sizing: border-box;}
+html, body {height: 100%; font-size: 16px;}
+body{background-color: #78a50d; background-image: url("https://www.transparenttextures.com/patterns/groovepaper.png"); max-width:768px; margin: 0 auto; font-family: 'Rubik', sans-serif; height: 100vh;}
+
+.game {margin: 2em 0 1em;}
+.game .window{padding: 1em;min-height: 135px;background: #424242;display: flex;flex-flow: column wrap;align-items: center; justify-content: center;}
+.game .window .player{margin: 0 0 .5em 0;font-size: 1.6rem;text-transform: uppercase;color: white;text-shadow: 0 0 1px rgba(0,0,0,1);}
+.game .window .action{text-align: center;font-size: 1rem;text-transform: uppercase;color: #fff;text-shadow: 0 0 1px rgba(0,0,0,1);}
+.game .window .action i{font-size: 2.5em;}
+.game .button{padding: .75em;margin: .5em;border-radius: .5em;background: #fff;color: #424242;text-align: center;text-transform: uppercase;font-size: 1.4rem;box-shadow: 0 6px 10px rgba(0,0,0,.2); transition: 250ms all ease}
+.game .button:active{background: #f8f8f8;color: #424242;box-shadow: 0 2px 2px rgba(0,0,0,.7); transform: translateY(1px);}
+
+
+
+.pieces{width: calc(100% - 1em);min-height: 10em;padding: .5em;display: flex;flex-flow: row wrap;justify-content: center;align-items: center;margin: .5em .5em 2em;background: rgba(0, 0, 0, 0.3);border-radius: .5em;}
+.pieces .item{width: calc(20% - .2em); margin: .1em; font-size: 3em; text-shadow: 6px 5px 8px rgba(0, 0, 0, 0.2);}
+.item.red{color: #de5a56;}
+.item.blue{color: #6aa9dc;}
+.item.green{color: #8bc34a;}
+.item.purple{color: #ba68c8;}
+.item.yellow{color: #ecd159;}
+
+.player_area_wrap{display: flex; flex-flow: row wrap; justify-content: center;}
+.player_area_heading{/* padding:5px; */font-weight: 600;font-size: 20px;text-transform: uppercase;color: white;text-align: center;text-shadow: 0 0 1px rgba(0,0,0,1);}
+.player_area{display: flex;flex-flow: row wrap;justify-content: space-around;padding: .5em;margin: 0 .5em 2em;width: calc(100% - 1em);border-radius: .5em;background: #795548;background-image: url("https://www.transparenttextures.com/patterns/dark-mosaic.png");}
+.player_area .droppable{height:60px; width:60px; border-radius:30px; background: rgba(0,0,0,.2); margin:5px; display:flex; flex-flow:row wrap; justify-content:center; align-items:center;}
+.player_area .droppable[data-color="red"]{border:2px solid #de5a56;}
+.player_area .droppable[data-color="blue"]{border:2px solid #6aa9dc;}
+.player_area .droppable[data-color="green"]{border:2px solid #8bc34a;}
+.player_area .droppable[data-color="purple"]{border:2px solid #ba68c8;}
+.player_area .droppable[data-color="yellow"]{border:2px solid #ecd159;}
+.player_area .droppable.ui-state-highlight{background: rgba(255,255,255,1); box-shadow:0 0 15px rgba(255,255,255,1);}
+
+.player_area .item{width:auto; margin:0; font-size: 2em; text-shadow: none;}
+
+.modal-overlay {display: none; background: rgba(0, 0, 0, 0.6); position: fixed; top: 0; left: 0; width: 100%; height: 100%;}
+.modal {display: none; position: relative; width: 500px; box-shadow: 1px 1px 5px rgba(0,0,0,.4); height: 400px; max-height: 90%; max-width: 90%; min-height: 380px; margin: 0 auto; background: rgba(0,0,0,.4); top: 50%; border-radius: 30px; transform: translateY(-50%); padding: 30px 10px;}
+.modal .winner {text-align: center; color: #fff;}
+.modal .winner .heading{font-size: 40px; margin:0 0 10px 0;}
+.modal .winner .name{font-size: 60px;}
+.modal .restart {margin: 30px auto 10px; padding: 15px 30px; display: block; font-size: 22px; background: #fff; border-radius: 40px; color: #595959; cursor: pointer; text-transform: uppercase; box-shadow: 0px 3px 10px rgba(0,0,0,.2);}
+</style>
+</head>
+
+<body>
+
+<div class="pieces">
+    <div class="item draggable red" data-item="Red"><i class="fad fa-pig"></i></div>
+    <div class="item draggable blue" data-item="Blue"><i class="fad fa-pig"></i></div>
+    <div class="item draggable green" data-item="Green"><i class="fad fa-pig"></i></div>
+    <div class="item draggable purple" data-item="Purple"><i class="fad fa-pig"></i></div>
+    <div class="item draggable yellow" data-item="Yellow"><i class="fad fa-pig"></i></div>
+    <div class="item draggable red" data-item="Red"><i class="fad fa-pig"></i></div>
+    <div class="item draggable blue" data-item="Blue"><i class="fad fa-pig"></i></div>
+    <div class="item draggable green" data-item="Green"><i class="fad fa-pig"></i></div>
+    <div class="item draggable purple" data-item="Purple"><i class="fad fa-pig"></i></div>
+    <div class="item draggable yellow" data-item="Yellow"><i class="fad fa-pig"></i></div>
+</div>
+
+<div class="player_area_heading">Player 1</div>
+<div class="player_area" data-player="1">
+    <div class="droppable" data-color="red"></div>
+    <div class="droppable" data-color="blue"></div>
+    <div class="droppable" data-color="green"></div>
+    <div class="droppable" data-color="purple"></div>
+    <div class="droppable" data-color="yellow"></div>
+</div>
+
+<div class="player_area_heading">Player 2</div>
+<div class="player_area" data-player="2">
+    <div class="droppable" data-color="red"></div>
+    <div class="droppable" data-color="blue"></div>
+    <div class="droppable" data-color="green"></div>
+    <div class="droppable" data-color="purple"></div>
+    <div class="droppable" data-color="yellow"></div>
+</div>
+
+<div class="game">
+    <div class="window">
+        <div class="player">Are You Ready?</div>
+        <div class="action"></div>
+    </div>
+    <div class="button">Tap To Begin</div>
+</div>
+
+<div class="modal-overlay">
+	<div class="modal">
+		<div class="winner">
+		    <div class="heading">Winner!</div>
+		    <div class="name"></div>
+		    <button class="restart">Play Again</button>
+		</div>
+	</div>
+</div>
+
+<audio preload="auto" class="snort" >
+  <source src="snort.mp3">
+</audio>
+
+<script src="https://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="js/jquery.ui.touch-punch.min.js" type="text/javascript"></script>
+<script>
+var snort = $('.snort');    
+var items;
+
+//Return Invalid Color
+$('.draggable').draggable({
+ revert: 'invalid',
+ disabled:true,
+ helper: "clone" 
+});
+
+$('.item').on('mousedown',function(){
+    snort[0].play();
+});
+
+//Click to start
+$('.game .button').on('click touch',function(){
+    $(this).html('<i class="fad fa-dice"></i> Roll');
+    let rand = Math.floor(Math.random() * 10) + 1; // Random between 1 and 10
+    let player = $('.player');
+    let text = player.text();
+    $('.player_area').removeClass('active');
+    if(text === 'Player 1'){
+        player.text('Player 2');
+        $('.player_area[data-player="2"] .droppable:not(".full")').droppable( "option", "disabled", false );
+        $('.player_area[data-player="1"] .droppable').droppable( "option", "disabled", true);
+        $('.player_area[data-player="1"]').addClass('active');
+    }else{
+        player.text('Player 1');
+        $('.player_area[data-player="1"] .droppable:not(".full")').droppable( "option", "disabled", false );
+        $('.player_area[data-player="2"] .droppable').droppable( "option", "disabled", true).addClass('active');
+        $('.player_area[data-player="2"]').addClass('active');
+    }
+
+    $('.draggable').draggable({disabled:true});
+
+    //Color Specific Stuff
+    if(rand === 1){
+        $('.window').css('background','#de5a56');
+        $('.action').html('<i class="fad fa-pig"></i><br>Take A Red Pig');
+        $('.pieces .draggable[data-item="Red"]').draggable({disabled:false});
+    }
+    if(rand === 2){
+        $('.window').css('background','#8bc34a');
+        $('.action').html('<i class="fad fa-pig"></i><br>Take A Green Pig');
+        $('.pieces .draggable[data-item="Green"]').draggable({disabled:false});
+    }
+    if(rand === 3){
+        $('.window').css('background','#6aa9dc');
+        $('.action').html('<i class="fad fa-pig"></i><br>Take A Blue Pig');
+        $('.pieces .draggable[data-item="Blue"]').draggable({disabled:false});
+    }
+    if(rand === 4){
+        $('.window').css('background','#ba68c8');
+        $('.action').html('<i class="fad fa-pig"></i><br>Take A Purple Pig');    ;
+        $('.pieces .draggable[data-item="Purple"]').draggable({disabled:false});
+    }
+    if(rand === 5){
+        $('.window').css('background','#ecd159');
+        $('.action').html('<i class="fad fa-pig"></i><br>Take A Yellow Pig');
+        $('.pieces .draggable[data-item="Yellow"]').draggable({disabled:false});
+    }
+    if(rand === 6){
+        $('.window').css('background','#424242');
+        $('.action').html('<i class="fad fa-pig"></i><br>Take Any 1 Pig');
+        $('.pieces .draggable').draggable({disabled:false});
+    }
+    if(rand === 7){
+        $('.window').css('background','#424242');
+        $('.action').html('<i class="fad fa-pig"></i><i class="fad fa-pig"></i><br>Take Any 2 Pigs');
+        $('.pieces .draggable').draggable({disabled:false});
+    }
+    if(rand === 8){
+        $('.window').css('background','#424242');
+        $('.action').html('<i class="fad fa-tornado"></i><br>Windy Day, Your Pigs Blew Away');
+        if(text === 'Player 1'){
+            $('.player_area[data-player="2"] .dropped').detach().appendTo('.pieces').removeClass('dropped');
+            $('.player_area[data-player="2"] .droppable').removeClass('full');
+        }else{
+            $('.player_area[data-player="1"] .dropped').detach().appendTo('.pieces').removeClass('dropped');
+            $('.player_area[data-player="1"] .droppable').removeClass('full');
+        }
+    }
+    if(rand === 9){
+        $('.window').css('background','#424242');
+        $('.action').html('<i class="fad fa-snooze"></i><br>Skip This Turn');
+    }
+    if(rand === 10){
+        $('.window').css('background','#424242');
+        if(text === 'Player 1'){
+            $('.action').html('<i class="fad fa-fist-raised"></i><br>Steal A Pig From Player 2');
+        }else{
+            $('.action').html('<i class="fad fa-fist-raised"></i><br>Steal A Pig From Player 1');
+        }
+        $('.dropped').draggable({
+            disabled:false
+        });
+    }
+
+    $('.droppable').each(function(){
+        if($(this).find('.dropped').length === 0){
+            $(this).removeClass('full');
+        }
+    });
+});
+  
+   
+$('.droppable').droppable({
+  drop: function(event,ui) {
+    var $this = $(this);
+    $this.addClass('full');
+    items = [ui.draggable];
+    ui.draggable.addClass('dropped').appendTo($this).css({top:'0',left:'0'});
+    $this.droppable("disable",true);
+    if($this.parent().find('.dropped').length === 5){
+        let num = $this.parent().data('player');
+        $('.modal-overlay,.modal').show();
+        $('.modal .name').text('Player '+num);
+    }
+  },
+  addClasses: false
+});
+
+$('.droppable').each(function(){
+    var $this = $(this);
+    var color = $this.data('color');
+    $('.droppable[data-color="'+color+'"]').droppable({
+        accept: "."+color,
+        activeClass: "ui-state-highlight"
+    });
+});
+
+$('.restart').click(function(){
+    location.reload();
+});
+
+  
+</script>
+</body>
+</html>
